@@ -1,3 +1,5 @@
+// stack implementation
+
 #include <stdio.h>
 #include <stdlib.h>
 
