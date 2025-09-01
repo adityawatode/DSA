@@ -1,97 +1,131 @@
-// stack implementation
+#include <iostream>
+using namespace std;
 
-#include <stdio.h>
-#include <stdlib.h>
-
-struct Node {
+class Node {
+public:
     int data;
-    struct Node* next;
+    Node* next;
+
+    Node(int value) {
+        data = value;
+        next = nullptr;
+    }
 };
 
-struct Node* top = NULL;   // global stack top
+class Stack {
+private:
+    Node* top;
 
-// Push (Create)
-void push(int value) {
-    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
-    newNode->data = value;
-    newNode->next = top;
-    top = newNode;
-    printf("%d pushed.\n", value);
-}
+public:
+    Stack() {
+        top = nullptr;
+    }
 
-// Display (Read)
-void display() {
-    if (top == NULL) {
-        printf("Stack is empty.\n");
-        return;
+    // Push
+    void push(int value) {
+        Node* newNode = new Node(value);
+        if (!newNode) {
+            cout << "Stack overflow! (Memory not available)\n";
+            return;
+        }
+        newNode->next = top;
+        top = newNode;
+        cout << value << " pushed.\n";
     }
-    struct Node* temp = top;
-    printf("Stack: ");
-    while (temp != NULL) {
-        printf("%d ", temp->data);
-        temp = temp->next;
-    }
-    printf("\n");
-}
 
-// Pop (Delete)
-void pop() {
-    if (top == NULL) {
-        printf("Stack underflow!\n");
-        return;
+    // Pop
+    int pop() {
+        if (top == nullptr) {
+            cout << "Stack underflow! (Stack is empty)\n";
+            return -1;
+        }
+        Node* temp = top;
+        int poppedValue = temp->data;
+        top = top->next;
+        delete temp;
+        cout << poppedValue << " popped.\n";
+        return poppedValue;
     }
-    struct Node* temp = top;
-    printf("%d popped.\n", temp->data);
-    top = top->next;
-    free(temp);
-}
 
-// Update (change value at a given position from top)
-void update(int pos, int newVal) {
-    struct Node* temp = top;
-    int i = 1;
-    while (temp != NULL && i < pos) {
-        temp = temp->next;
-        i++;
+    // Display
+    void display() {
+        if (top == nullptr) {
+            cout << "Stack is empty.\n";
+            return;
+        }
+        Node* temp = top;
+        cout << "Stack: ";
+        while (temp != nullptr) {
+            cout << temp->data << " ";
+            temp = temp->next;
+        }
+        cout << endl;
     }
-    if (temp == NULL) {
-        printf("Invalid position.\n");
-    } else {
-        printf("Updated position %d from %d to %d.\n", pos, temp->data, newVal);
-        temp->data = newVal;
+
+    // Update
+    void update(int pos, int newVal) {
+        if (top == nullptr) {
+            cout << "Stack is empty, nothing to update.\n";
+            return;
+        }
+        Node* temp = top;
+        int i = 1;
+        while (temp != nullptr && i < pos) {
+            temp = temp->next;
+            i++;
+        }
+        if (temp == nullptr) {
+            cout << "Invalid position.\n";
+        } else {
+            cout << "Updated position " << pos << " from " << temp->data << " to " << newVal << ".\n";
+            temp->data = newVal;
+        }
     }
-}
+
+    // Destructor to free memory
+    ~Stack() {
+        while (top != nullptr) {
+            Node* temp = top;
+            top = top->next;
+            delete temp;
+        }
+    }
+};
 
 int main() {
+    Stack s;
     int choice, val, pos;
 
-    while (1) {
-        printf("\n1. Push\n2. Display\n3. Pop\n4. Update\n5. Exit\nEnter choice: ");
-        scanf("%d", &choice);
+    while (true) {
+        cout << "\n1. Push\n2. Display\n3. Pop\n4. Update\n5. Exit\nEnter choice: ";
+        cin >> choice;
 
         switch (choice) {
             case 1:
-                printf("Enter value: ");
-                scanf("%d", &val);
-                push(val);
+                cout << "Enter value: ";
+                cin >> val;
+                s.push(val);
                 break;
             case 2:
-                display();
+                s.display();
                 break;
             case 3:
-                pop();
+                val = s.pop();
+                if (val != -1) {
+                    cout << "Returned value: " << val << endl;
+                }
                 break;
             case 4:
-                printf("Enter position from top: ");
-                scanf("%d", &pos);
-                printf("Enter new value: ");
-                scanf("%d", &val);
-                update(pos, val);
+                cout << "Enter position from top: ";
+                cin >> pos;
+                cout << "Enter new value: ";
+                cin >> val;
+                s.update(pos, val);
                 break;
             case 5:
                 return 0;
             default:
-                printf("Invalid choice.\n");
+                cout << "Invalid choice.\n";
         }
     }
 }
