@@ -1,105 +1,139 @@
-// Queue implementation
+// queue implementation
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <iostream>
+using namespace std;
 
-struct Node {
+class Node {
+public:
     int data;
-    struct Node* next;
+    Node* next;
+
+    Node(int value) {   
+        data = value;
+        next = nullptr;
+    }
 };
 
-struct Node* front = NULL;
-struct Node* rear = NULL;
+class Queue {
+private:
+    Node* front;
+    Node* rear;
 
-// Enqueue (Create)
-void enqueue(int value) {
-    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
-    newNode->data = value;
-    newNode->next = NULL;
+public:
+    Queue() {
+        front = rear = nullptr;
+    }
 
-    if (rear == NULL) { // queue is empty
-        front = rear = newNode;
-    } else {
-        rear->next = newNode;
-        rear = newNode;
+    // Enqueue
+    void enqueue(int value) {
+        Node* newNode = new Node(value);
+        if (!newNode) {
+            cout << "Queue overflow! (Memory not available)\n";
+            return;
+        }
+        if (rear == nullptr) { // first element
+            front = rear = newNode;
+        } else {
+            rear->next = newNode;
+            rear = newNode;
+        }
+        cout << value << " enqueued.\n";
     }
-    printf("%d enqueued.\n", value);
-}
 
-// Display (Read)
-void display() {
-    if (front == NULL) {
-        printf("Queue is empty.\n");
-        return;
+    // Dequeue
+    int dequeue() {
+        if (front == nullptr) {
+            cout << "Queue underflow! (Queue is empty)\n";
+            return -1;
+        }
+        Node* temp = front;
+        int dequeuedValue = temp->data;
+        front = front->next;
+        if (front == nullptr) rear = nullptr; // if queue became empty
+        delete temp;
+        cout << dequeuedValue << " dequeued.\n";
+        return dequeuedValue;
     }
-    struct Node* temp = front;
-    printf("Queue: ");
-    while (temp != NULL) {
-        printf("%d ", temp->data);
-        temp = temp->next;
-    }
-    printf("\n");
-}
 
-// Dequeue (Delete)
-void dequeue() {
-    if (front == NULL) {
-        printf("Queue underflow!\n");
-        return;
+    // Display
+    void display() {
+        if (front == nullptr) {
+            cout << "Queue is empty.\n";
+            return;
+        }
+        Node* temp = front;
+        cout << "Queue: ";
+        while (temp != nullptr) {
+            cout << temp->data << " ";
+            temp = temp->next;
+        }
+        cout << endl;
     }
-    struct Node* temp = front;
-    printf("%d dequeued.\n", temp->data);
-    front = front->next;
-    if (front == NULL) rear = NULL; // queue became empty
-    free(temp);
-}
 
-// Update (change value at position from front)
-void update(int pos, int newVal) {
-    struct Node* temp = front;
-    int i = 1;
-    while (temp != NULL && i < pos) {
-        temp = temp->next;
-        i++;
+    // Update
+    void update(int pos, int newVal) {
+        if (front == nullptr) {
+            cout << "Queue is empty, nothing to update.\n";
+            return;
+        }
+        Node* temp = front;
+        int i = 1;
+        while (temp != nullptr && i < pos) {
+            temp = temp->next;
+            i++;
+        }
+        if (temp == nullptr) {
+            cout << "Invalid position.\n";
+        } else {
+            cout << "Updated position " << pos << " from " << temp->data << " to " << newVal << ".\n";
+            temp->data = newVal;
+        }
     }
-    if (temp == NULL) {
-        printf("Invalid position.\n");
-    } else {
-        printf("Updated position %d from %d to %d.\n", pos, temp->data, newVal);
-        temp->data = newVal;
+
+    // Destructor → free memory
+    ~Queue() {
+        while (front != nullptr) {
+            Node* temp = front;
+            front = front->next;
+            delete temp;
+        }
     }
-}
+};
 
 int main() {
+    Queue q;
     int choice, val, pos;
 
-    while (1) {
-        printf("\n1. Enqueue\n2. Display\n3. Dequeue\n4. Update\n5. Exit\nEnter choice: ");
-        scanf("%d", &choice);
+    while (true) {
+        cout << "\n1. Enqueue\n2. Display\n3. Dequeue\n4. Update\n5. Exit\nEnter choice: ";
+        cin >> choice;
 
         switch (choice) {
             case 1:
-                printf("Enter value: ");
-                scanf("%d", &val);
-                enqueue(val);
+                cout << "Enter value: ";
+                cin >> val;
+                q.enqueue(val);
                 break;
             case 2:
-                display();
+                q.display();
                 break;
             case 3:
-                dequeue();
+                val = q.dequeue();
+                if (val != -1) {
+                    cout << "Returned value: " << val << endl;
+                }
                 break;
             case 4:
-                printf("Enter position from front: ");
-                scanf("%d", &pos);
-                printf("Enter new value: ");
-                scanf("%d", &val);
-                update(pos, val);
+                cout << "Enter position from front: ";
+                cin >> pos;
+                cout << "Enter new value: ";
+                cin >> val;
+                q.update(pos, val);
                 break;
             case 5:
                 return 0;
             default:
-                printf("Invalid choice.\n");
+                cout << "Invalid choice.\n";
         }
     }
 }
